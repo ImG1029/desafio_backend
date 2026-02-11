@@ -1,0 +1,35 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === Virtual environments ===
+venv/
+.env/
+.env.local/
+
+# === Django ===
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+
+# === Logs ===
+*.log
+
+# === IDEs ===
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Testing ===
+.coverage
+htmlcov/
+
+# === Local settings ===
+local_settings.py
