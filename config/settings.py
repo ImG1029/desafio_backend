@@ -5,9 +5,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-k)z+!-h!iyh%8qlf7wgx*tj-j5rtk&q@5@l!hannq^%j3oa5n2'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 
@@ -16,7 +16,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'rest_framework',
 
-    'api'
+    'api',
+    'api.owners.apps.OwnersConfig'
 ]
 
 MIDDLEWARE = [
