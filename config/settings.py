@@ -17,7 +17,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'api',
-    'api.owners.apps.OwnersConfig'
+    'api.owners.apps.OwnersConfig',
+    'api.pets',
 ]
 
 MIDDLEWARE = [
