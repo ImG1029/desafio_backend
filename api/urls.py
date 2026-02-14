@@ -5,4 +5,5 @@ urlpatterns = [
     path('health/', HealthView.as_view()),
     path('owners/', include('api.owners.urls')),
     path('pets/', include('api.pets.urls')),
+    path('vaccines/', include('api.vaccines.urls')),
 ]
