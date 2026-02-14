@@ -1,25 +1,31 @@
 from rest_framework import serializers
 from .models import Pet
+from ..owners.models import Owner
 
 
-class PetCreateSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=255)
-    species = serializers.CharField(max_length=255)
-    breed = serializers.CharField(max_length=255)
-    birth_date = serializers.DateField()
-
-class PetReadSerializer(serializers.ModelSerializer):
+class PetWriteSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(
+        queryset=Owner.objects.all()
+    )
     class Meta:
         model = Pet
         fields = [
             "name",
             "species",
             "breed",
-            "birth_date"
+            "birth_date",
+            "owner",
         ]
 
-class PetOwnerUpdateSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=255)
-    species = serializers.CharField(max_length=255)
-    breed = serializers.CharField(max_length=255)
-    birth_date = serializers.DateField()
+class PetReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pet
+        fields = [
+            "id",
+            "name",
+            "species",
+            "breed",
+            "birth_date",
+            "owner",
+            "created_at",
+        ]

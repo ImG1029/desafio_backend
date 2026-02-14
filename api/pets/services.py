@@ -8,25 +8,25 @@ class PetService:
         return pet
 
     @staticmethod
-    def retrieve_pet(pet_id):
-        pet = get_object_or_404(Pet, id=pet_id)
+    def retrieve_pet(pk: int):
+        pet = get_object_or_404(
+            Pet.objects.select_related("owner"),
+            pk=pk
+        )
         return pet
 
     @staticmethod
     def list_pets():
-        return Pet.objects.all()
+        return Pet.objects.select_related("owner").all()
 
     @staticmethod
-    def update_pet(pet_id, validated_data):
-        pet = get_object_or_404(Pet, id=pet_id)
-
+    def update_pet(instance, validated_data):
         for field, value in validated_data.items():
-            setattr(pet, field, value)
+            setattr(instance, field, value)
 
-        pet.save()
-        return pet
+        instance.save()
+        return instance
 
     @staticmethod
-    def delete_pet(pet_id):
-        pet = get_object_or_404(Pet, id=pet_id)
-        pet.delete()
+    def delete_pet(instance):
+        instance.delete()
