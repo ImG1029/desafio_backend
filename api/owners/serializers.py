@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Owner
+from ..pets.serializers import PetReadSerializer
+
 
 class OwnerCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
@@ -10,6 +12,7 @@ class OwnerCreateSerializer(serializers.Serializer):
     address_2 = serializers.IntegerField()
 
 class OwnerReadSerializer(serializers.ModelSerializer):
+    pets = PetReadSerializer(many=True)
     class Meta:
         model = Owner
         fields = [
@@ -19,7 +22,8 @@ class OwnerReadSerializer(serializers.ModelSerializer):
             "phone_number",
             "address",
             "address_2",
-            "created_at"
+            "created_at",
+            "pets"
         ]
 
 class OwnerUpdateSerializer(serializers.ModelSerializer):
