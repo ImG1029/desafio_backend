@@ -19,7 +19,6 @@ class AccountReadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at']
 
-
 class AccountRegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True, min_length=8)
@@ -37,9 +36,6 @@ class AccountUpdateSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
 
-    license_number = serializers.CharField(
-        max_length=50,
-        required=False,
-        allow_blank=True,
-        allow_null=True
-    )
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)

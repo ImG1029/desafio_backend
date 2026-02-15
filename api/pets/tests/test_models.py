@@ -1,10 +1,10 @@
 from django.db import IntegrityError
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from api.owners.models import Owner
 from api.pets.models import Pet
 
-class PetModelTest(APITestCase):
+class PetModelTest(TestCase):
     def setUp(self):
         self.owner = Owner.objects.create(
             name="TEST NAME",

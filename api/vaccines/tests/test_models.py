@@ -1,8 +1,8 @@
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from api.vaccines.models import Vaccine
 
-class VaccineModelTest(APITestCase):
+class VaccineModelTest(TestCase):
     def setUp(self):
         self.vaccine = Vaccine.objects.create(
             name="VACCINE NAME",

@@ -1,13 +1,15 @@
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
-from rest_framework.test import APITestCase
 from rest_framework import status
 
+from api.tests.base import AuthenticatedAPITestCase
 from api.owners.models import Owner
 from api.pets.models import Pet
 
-class TestPetAPI(APITestCase):
-    def setUp(self):
-        self.owner = Owner.objects.create(
+class TestPetAPI(AuthenticatedAPITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.owner = Owner.objects.create(
             name="TEST NAME",
             cpf=11111111111,
             email="test@email.com",
@@ -15,13 +17,36 @@ class TestPetAPI(APITestCase):
             address="RUA DO TESTE",
             address_2=123
         )
+        cls.pet = Pet.objects.create(
+            name="TODDY",
+            species="DOG",
+            breed="LHASA APSO",
+            birth_date="2019-06-27",
+            owner=cls.owner
+        )
+        cls.pet2 = Pet.objects.create(
+            name="TODDY 2",
+            species="DOG",
+            breed="LHASA APSO",
+            birth_date="2019-06-27",
+            owner=cls.owner
+        )
+        cls.pet3 = Pet.objects.create(
+            name="TODDY 3",
+            species="DOG",
+            breed="LHASA APSO",
+            birth_date="2019-06-27",
+            owner=cls.owner
+        )
 
+    def setUp(self):
+        super().setUp()  # This authenticates as vet
         self.pet_data = {
             "name": "TEST DOG",
             "species": "TEST SPECIES",
             "breed": "TEST BREED",
             "birth_date": "2000-12-31",
-            "owner": 1
+            "owner": self.owner.id
         }
 
         self.invalid_pet_data = {
@@ -29,32 +54,8 @@ class TestPetAPI(APITestCase):
             "species": "TEST SPECIES",
             "breed": "TEST BREED",
             "birth_date": 2000-12-31,
-            "owner": 1
+            "owner": self.owner.id
         }
-
-        self.pet = Pet.objects.create(
-            name="TODDY",
-            species="DOG",
-            breed="LHASA APSO",
-            birth_date="2019-06-27",
-            owner_id=1
-        )
-
-        self.pet2 = Pet.objects.create(
-            name="TODDY 2",
-            species="DOG",
-            breed="LHASA APSO",
-            birth_date="2019-06-27",
-            owner_id=1
-        )
-
-        self.pet3 = Pet.objects.create(
-            name="TODDY 3",
-            species="DOG",
-            breed="LHASA APSO",
-            birth_date="2019-06-27",
-            owner_id=1
-        )
 
     def test_create_pet(self):
         response = self.client.post(
@@ -100,7 +101,7 @@ class TestPetAPI(APITestCase):
             "species": "TEST SPECIES 2",
             "breed": "TEST BREED 2",
             "birth_date": "2020-10-15",
-            "owner": 1
+            "owner": self.owner.id
         }
 
         response = self.client.put(
@@ -118,7 +119,7 @@ class TestPetAPI(APITestCase):
             "species": "TEST SPECIES",
             "breed": "TEST BREED",
             "birth_date": "2000-12-31",
-            "owner": 1
+            "owner": self.owner.id
         }
 
         response = self.client.patch(
@@ -136,7 +137,7 @@ class TestPetAPI(APITestCase):
             "species": "TEST SPECIES 2",
             "breed": "TEST BREED 2",
             "birth_date": 2020-10-15,
-            "owner": 1
+            "owner": self.owner.id
         }
 
         response = self.client.put(
@@ -148,6 +149,7 @@ class TestPetAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_pet(self):
+        self.authenticate_as_admin()  # Only admins can delete
         response = self.client.delete(
             f"/api/pets/{self.pet.id}/"
         )
@@ -155,6 +157,7 @@ class TestPetAPI(APITestCase):
         self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
 
     def test_delete_invalid_pet(self):
+        self.authenticate_as_admin()  # Only admins can delete
         self.client.delete(
             f"/api/pets/{self.pet.id}/"
         )

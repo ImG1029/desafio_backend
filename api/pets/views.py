@@ -1,11 +1,17 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .serializers import PetWriteSerializer, PetReadSerializer
 from .services import PetService
+from ..accounts.permissions import ResourcePermission
+
 
 class PetListCreateView(APIView):
+    permission_classes = [IsAuthenticated, ResourcePermission]
+    queryset = PetService.list_pets()
+
     def get(self, request):
         pets = PetService.list_pets()
 
@@ -35,6 +41,9 @@ class PetListCreateView(APIView):
         )
 
 class PetDetailView(APIView):
+    permission_classes = [IsAuthenticated, ResourcePermission]
+    queryset = PetService.list_pets()
+
     def get(self, request, pk):
         pet = PetService.retrieve_pet(pk)
 

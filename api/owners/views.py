@@ -1,11 +1,17 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .serializers import OwnerCreateSerializer, OwnerReadSerializer, OwnerUpdateSerializer
 from .services import OwnerService
+from ..accounts.permissions import ResourcePermission
+
 
 class OwnerListCreateView(APIView):
+    permission_classes = [IsAuthenticated, ResourcePermission]
+    queryset = OwnerService.list_owners()
+
     def get(self, request):
         owners = OwnerService.list_owners()
 
@@ -35,6 +41,9 @@ class OwnerListCreateView(APIView):
         )
 
 class OwnerDetailView(APIView):
+    permission_classes = [IsAuthenticated, ResourcePermission]
+    queryset = OwnerService.list_owners()
+
     def get(self, request, owner_id):
         owner = OwnerService.retrieve_owner(owner_id)
 

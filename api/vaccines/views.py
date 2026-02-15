@@ -1,11 +1,17 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .serializers import VaccineWriteSerializer, VaccineReadSerializer
 from .services import VaccineService
+from ..accounts.permissions import ResourcePermission
+
 
 class VaccineListCreateView(APIView):
+    permission_classes = [IsAuthenticated, ResourcePermission]
+    queryset = VaccineService.list_vaccines()
+
     def get(self, request):
         vaccines = VaccineService.list_vaccines()
         serializer = VaccineReadSerializer(vaccines, many=True)
@@ -28,6 +34,8 @@ class VaccineListCreateView(APIView):
         )
 
 class VaccineDetailView(APIView):
+    permission_classes = [IsAuthenticated, ResourcePermission]
+    queryset = VaccineService.list_vaccines()
     def get(self, request, pk):
         vaccine = VaccineService.retrieve_vaccine(pk)
 
