@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'api.pets',
     'api.vaccines',
     'api.accounts',
+    'api.vaccination_records',
 ]
 
 MIDDLEWARE = [
