@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'api.owners.apps.OwnersConfig',
     'api.pets',
     'api.vaccines',
+    'api.accounts',
 ]
 
 MIDDLEWARE = [
