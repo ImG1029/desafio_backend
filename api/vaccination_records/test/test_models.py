@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from api.vaccination_records.models import VaccinationRecord
 from api.owners.models import Owner
@@ -7,7 +7,7 @@ from api.accounts.models import Account
 from api.pets.models import Pet
 from api.vaccines.models import Vaccine
 
-class VaccinationRecordTest(APITestCase):
+class VaccinationRecordTest(TestCase):
     def setUp(self):
         self.owner = Owner.objects.create(
             name="FRANKLIN",

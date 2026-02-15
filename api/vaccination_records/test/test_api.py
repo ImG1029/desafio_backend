@@ -9,9 +9,11 @@ from api.owners.models import Owner
 from api.vaccines.models import Vaccine
 from api.vaccination_records.models import VaccinationRecord
 
-
+@classmethod
 class TestVaccinationRecordAPI(APITestCase):
-    def setUp(self):
+    def setUpTestData(cls):
+        super().setUpTestData()
+        
         self.owner = Owner.objects.create(
             name="FRANKLIN",
             cpf=11111111111,
@@ -107,7 +109,7 @@ class TestVaccinationRecordAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["pet"]["name"], "CHOP")
         self.assertEqual(response.data["vaccine"]["name"], "VACCINE NAME")
-        self.assertEqual(response.data["veterinarian"]["username"], "VET USERNAME")
+        self.assertEqual(response.data["veterinarian"]["username"], "vet")
 
     def test_retrieve_invalid_record(self):
         response = self.client.get(
@@ -137,7 +139,6 @@ class TestVaccinationRecordAPI(APITestCase):
         new_record_data = {
             "pet": self.pet.pk,
             "vaccine": self.vaccine_rabies.pk,
-            "veterinarian": self.account.pk,
             "next_dose_recommendation": "2025-06-15"
         }
 

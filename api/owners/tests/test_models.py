@@ -1,9 +1,9 @@
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from api.owners.models import Owner
 
 
-class OwnerModelTest(APITestCase):
+class OwnerModelTest(TestCase):
 
     def setUp(self):
         self.owner = Owner.objects.create(

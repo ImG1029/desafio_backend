@@ -1,37 +1,41 @@
 from django.contrib.auth.models import User
 from rest_framework import status
-from rest_framework.test import APITestCase
 
+from api.tests.base import AuthenticatedAPITestCase
 from api.accounts.models import Account
 
-class TestAccountAPI(APITestCase):
+class TestAccountAPI(AuthenticatedAPITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        # Create an additional account for testing
+        cls.test_user = User.objects.create_user(
+            username="testuser",
+            first_name="Test",
+            last_name="User",
+        )
+        cls.test_account = Account.objects.create(
+            user=cls.test_user,
+            license_number="54321",
+        )
+
     def setUp(self):
+        super().setUp()  # This authenticates as vet
         self.user_data = {
             "username": "NEW USERNAME",
             "password": "PASSWORD",
             "first_name": "NAME",
             "last_name": "SURNAME",
-            "license_number": "00000",
         }
         self.invalid_user_data = {
             "user_name": "INVALID USERNAME",
             "password": "PASSWORD",
             "full_name": "NAME",
-            "license_number": "99999",
         }
 
-        self.user = User.objects.create_user(
-            username="USERNAME",
-            first_name="NAME",
-            last_name="SURNAME",
-        )
-
-        self.account = Account.objects.create(
-            user=self.user,
-            license_number="12345",
-        )
 
     def test_register_account(self):
+        self.authenticate_as_admin()  # Only admins can create accounts
         response = self.client.post(
             "/api/accounts/",
             self.user_data,
@@ -42,6 +46,7 @@ class TestAccountAPI(APITestCase):
         self.assertEqual(response.data["username"], "NEW USERNAME")
 
     def test_register_invalid_account(self):
+        self.authenticate_as_admin()  # Only admins can create accounts
         response = self.client.post(
             "/api/accounts/",
             self.invalid_user_data,
@@ -52,11 +57,11 @@ class TestAccountAPI(APITestCase):
 
     def test_retrieve_account(self):
         response = self.client.get(
-            f"/api/accounts/{self.account.pk}/",
+            f"/api/accounts/{self.test_account.pk}/",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["username"], "USERNAME")
+        self.assertEqual(response.data["username"], "testuser")
 
     def test_retrieve_invalid_account(self):
         response = self.client.get(
@@ -69,8 +74,10 @@ class TestAccountAPI(APITestCase):
         response = self.client.get("/api/accounts/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        # We have admin, vet, regular, and test_account (4 accounts)
+        self.assertEqual(len(response.data), 4)
 
+        self.authenticate_as_admin()  # Only admins can create accounts
         self.client.post(
             "/api/accounts/",
             self.user_data,
@@ -79,19 +86,18 @@ class TestAccountAPI(APITestCase):
 
         response = self.client.get("/api/accounts/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 5)
 
     def test_update_account(self):
         new_account_data = {
             "username": "UPDATED USERNAME",
             "password": "PASSWORD",
             "first_name": "UPDATED NAME",
-            "last_name": "UPDATED SURNAME",
-            "license_number": "987654321",
+            "last_name": "UPDATED SURNAME"
         }
 
         response = self.client.put(
-            f"/api/accounts/{self.account.pk}/",
+            f"/api/accounts/{self.vet_account.pk}/",
             data=new_account_data,
             format="json"
         )
@@ -100,25 +106,23 @@ class TestAccountAPI(APITestCase):
         self.assertEqual(response.data["username"], "UPDATED USERNAME")
         self.assertEqual(response.data["first_name"], "UPDATED NAME")
         self.assertEqual(response.data["last_name"], "UPDATED SURNAME")
-        self.assertEqual(response.data["license_number"], "987654321")
 
     def test_update_partial_account(self):
         new_account_data = {
             "username": "UPDATED USERNAME",
-            "license_number": "987654321",
         }
 
+        # Update vet's own account
         response = self.client.patch(
-            f"/api/accounts/{self.account.pk}/",
+            f"/api/accounts/{self.vet_account.pk}/",
             data=new_account_data,
             format="json"
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["username"], "UPDATED USERNAME")
-        self.assertEqual(response.data["first_name"], "NAME")
-        self.assertEqual(response.data["last_name"], "SURNAME")
-        self.assertEqual(response.data["license_number"], "987654321")
+        self.assertEqual(response.data["first_name"], "Vet")
+        self.assertEqual(response.data["last_name"], "Doctor")
 
     def test_update_invalid_account(self):
         invalid_account_data = {
@@ -126,11 +130,11 @@ class TestAccountAPI(APITestCase):
             "pass_word": "INVALID",
             "firstname": "INVALID",
             "lastname": "INVALID",
-            "licensenumber": "INVALID",
         }
 
+        # Test updating own account with invalid data
         response = self.client.put(
-            f"/api/accounts/{self.account.pk}/",
+            f"/api/accounts/{self.vet_account.pk}/",
             data=invalid_account_data,
             format="json"
         )
@@ -139,11 +143,10 @@ class TestAccountAPI(APITestCase):
 
         invalid_partial_account_data = {
             "user_name": "UPDATED USERNAME",
-            "licensenumber": "987654321",
         }
 
         response = self.client.patch(
-            f"/api/accounts/{self.account.pk}/",
+            f"/api/accounts/{self.vet_account.pk}/",
             data=invalid_partial_account_data,
             format="json"
         )
@@ -151,10 +154,11 @@ class TestAccountAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_account(self):
+        self.authenticate_as_admin()  # Only admins can delete accounts
         response = self.client.delete(
-            f"/api/accounts/{self.account.pk}/",
+            f"/api/accounts/{self.test_account.pk}/",
         )
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        user = Account.objects.filter(pk=self.account.pk).get().user
+        user = Account.objects.filter(pk=self.test_account.pk).get().user
         self.assertEqual(user.is_active, False)

@@ -32,3 +32,13 @@ class OwnerUpdateSerializer(serializers.ModelSerializer):
     phone_number = serializers.IntegerField(min_value=1100000000, max_value=99999999999)
     address = serializers.CharField(max_length=255)
     address_2 = serializers.IntegerField()
+
+    class Meta:
+        model = Owner
+        fields = [
+            "name",
+            "email",
+            "phone_number",
+            "address",
+            "address_2"
+        ]

@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from api.accounts.models import Account
 
-class TestAccountModel(APITestCase):
+class TestAccountModel(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username="USERNAME",

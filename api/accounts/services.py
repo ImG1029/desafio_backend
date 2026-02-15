@@ -1,5 +1,6 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.generics import get_object_or_404
 
 from .models import Account
@@ -69,3 +70,20 @@ class AccountService:
             raise ValidationError("User account not found")
 
         return user.account
+
+    @staticmethod
+    def authenticate_user(username, password):
+        user = authenticate(username=username, password=password)
+
+        if not user:
+            raise AuthenticationFailed("Invalid credentials")
+
+        if not user.is_active:
+            raise AuthenticationFailed("Account is deactivated")
+
+        try:
+            account = user.accounts
+        except Account.DoesNotExist:
+            raise AuthenticationFailed("Account not found")
+
+        return user, account

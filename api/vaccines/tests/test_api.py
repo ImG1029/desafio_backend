@@ -1,10 +1,20 @@
 from rest_framework import status
-from rest_framework.test import APITestCase
 
+from api.tests.base import AuthenticatedAPITestCase
 from api.vaccines.models import Vaccine
 
-class TestVaccineAPI(APITestCase):
+class TestVaccineAPI(AuthenticatedAPITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.vaccine = Vaccine.objects.create(
+            name="VACCINE NAME",
+            type="VACCINE TYPE",
+            manufacturer="VACCINE MANUFACTURER"
+        )
+
     def setUp(self):
+        super().setUp()  # This authenticates as vet
         self.vaccine_data = {
             "name": "NEW VACCINE NAME",
             "type": "VACCINE TYPE",
@@ -19,11 +29,6 @@ class TestVaccineAPI(APITestCase):
             "recommended_interval_days": 365,
         }
 
-        self.vaccine = Vaccine.objects.create(
-            name="VACCINE NAME",
-            type="VACCINE TYPE",
-            manufacturer="VACCINE MANUFACTURER"
-        )
 
     def test_create_vaccine(self):
         response = self.client.post(
@@ -125,6 +130,7 @@ class TestVaccineAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_vaccine(self):
+        self.authenticate_as_admin()  # Only admins can delete
         response = self.client.delete(
             f"/api/vaccines/{self.vaccine.pk}/",
         )
@@ -132,6 +138,7 @@ class TestVaccineAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_invalid_vaccine(self):
+        self.authenticate_as_admin()  # Only admins can delete
         self.client.delete(
             f"/api/vaccines/{self.vaccine.pk}/",
         )
