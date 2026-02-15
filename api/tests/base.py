@@ -18,16 +18,8 @@ class BaseAPITestCase(APITestCase):
 class AuthenticatedAPITestCase(BaseAPITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.admin_user = User.objects.create_superuser(
-            username="admin",
-            password="admin123",
-            first_name="Admin",
-            last_name="User"
-        )
-        cls.admin_account = Account.objects.create(
-            user=cls.admin_user,
-            license_number=None
-        )
+        cls.admin_user = User.objects.get(username="admin")
+        cls.admin_account = cls.admin_user.accounts
 
         # Create veterinarian
         cls.vet_user = User.objects.create_user(
